@@ -1,0 +1,3 @@
+# Redesign the solver domain model instead of porting the Python tool 1:1
+
+The archived `wordle-helper` Python script represents accumulated clue knowledge as a single flat dict keyed by position, with brute-force Cartesian-product pattern generation over unresolved letters. We chose to redesign the domain model from scratch around this repo's DDD/Clean Architecture mandate (CLAUDE.md) — GuessRow, Clue, ConstraintSet (see CONTEXT.md) — rather than translate the Python data structures line-for-line into C#. The Python shape optimizes for a one-shot terminal prompt sequence; it doesn't fit a reactive, multi-row Blazor UI or a pure domain layer, and porting it as-is would embed procedural, position-indexed state directly into the domain, violating SRP.

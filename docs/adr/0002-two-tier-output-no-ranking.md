@@ -1,0 +1,5 @@
+# Two-tier output (CandidateWord list + on-demand Pattern view), no ranked suggestion
+
+The embedded Dictionary (5,757 words, MIT-licensed `darkermango/5-Letter-words`) is not exhaustive, so filtering it against the ConstraintSet alone could silently hide a correct answer with no indication anything was dropped — the same risk the original Python tool guarded against by always printing raw constraint-satisfying patterns alongside dictionary-filtered words. We kept that safety property but split it into two tiers: CandidateWords are shown live/reactively as the primary result, and Patterns (constraint-satisfying letter arrangements independent of the Dictionary) are computed only on demand via an explicit "Show Pattern" action, since they're a diagnostic secondary view rather than the main workflow.
+
+We explicitly ruled a ranked "best next guess" suggestion (e.g. information-theoretic scoring) out of scope: it's a materially different algorithm from constraint filtering, not an incremental improvement on it, and deserves its own future effort rather than being folded into this migration.
