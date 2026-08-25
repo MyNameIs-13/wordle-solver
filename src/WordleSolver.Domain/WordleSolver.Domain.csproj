@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\words.json" LogicalName="WordleSolver.Domain.Resources.words.json" />
+  </ItemGroup>
+
 </Project>
