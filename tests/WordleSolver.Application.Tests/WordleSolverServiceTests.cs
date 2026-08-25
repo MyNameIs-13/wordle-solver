@@ -4,7 +4,7 @@ namespace WordleSolver.Application.Tests;
 
 public class WordleSolverServiceTests
 {
-    private static readonly WordList WordList = WordList.LoadEmbedded();
+    private static readonly WordList WordList = new EmbeddedWordListSource().Load();
 
     private static GuessHistory HistoryOf(params GuessRow[] rows)
     {

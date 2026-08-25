@@ -8,7 +8,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddSingleton(_ => WordList.LoadEmbedded());
+builder.Services.AddSingleton<IWordListSource, EmbeddedWordListSource>();
+builder.Services.AddSingleton(sp => sp.GetRequiredService<IWordListSource>().Load());
 builder.Services.AddSingleton<WordleSolverService>();
 
 var app = builder.Build();
