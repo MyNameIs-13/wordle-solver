@@ -7,7 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddSingleton(_ => Dictionary.LoadEmbedded());
+builder.Services.AddSingleton(_ => WordList.LoadEmbedded());
 
 var app = builder.Build();
 

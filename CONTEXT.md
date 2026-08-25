@@ -1,6 +1,6 @@
 # Wordle Solver
 
-A tool that helps a player narrow down candidate Wordle answers as they play, by tracking the clues (letter colors) from each guess they've entered and filtering a dictionary against the accumulated constraints.
+A tool that helps a player narrow down candidate Wordle answers as they play, by tracking the clues (letter colors) from each guess they've entered and filtering a word list against the accumulated constraints.
 
 ## Language
 
@@ -32,14 +32,14 @@ _Avoid_: Rule, filter
 The aggregation of every Constraint derived from the whole GuessHistory — the accumulated knowledge the solver reasons from.
 _Avoid_: Known state, filters
 
-**Dictionary**:
+**WordList**:
 The fixed list of recognized 5-letter English words the solver checks candidates against.
-_Avoid_: Word list (when referring to the domain concept rather than the underlying file), corpus
+_Avoid_: Dictionary (collides with the C# BCL type; the domain concept is a plain list, not a key-value structure), corpus
 
 **CandidateWord**:
-A Dictionary entry that satisfies the current ConstraintSet — a possible answer.
+A WordList entry that satisfies the current ConstraintSet — a possible answer.
 _Avoid_: Match, result, suggestion (this project makes no ranked suggestion — see ADR-0002)
 
 **Pattern**:
-A letter arrangement that satisfies the current ConstraintSet, independent of whether it appears in the Dictionary. Exists to reveal Constraint-satisfying possibilities the Dictionary might be missing.
+A letter arrangement that satisfies the current ConstraintSet, independent of whether it appears in the WordList. Exists to reveal Constraint-satisfying possibilities the WordList might be missing.
 _Avoid_: Possible pattern, raw word
