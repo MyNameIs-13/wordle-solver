@@ -1,4 +1,4 @@
-namespace WordleSolver.Domain;
+namespace WordleSolver.Domain.Constraints;
 
 /// <summary>
 /// The candidate must contain the given letter at least this many times — derived from a GuessRow

@@ -1,4 +1,4 @@
-namespace WordleSolver.Domain;
+namespace WordleSolver.Domain.Constraints;
 
 /// <summary>
 /// A single rule a candidate answer must satisfy, derived from one or more GuessRows.

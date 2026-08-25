@@ -1,4 +1,4 @@
-namespace WordleSolver.Domain;
+namespace WordleSolver.Domain.Constraints;
 
 /// <summary>
 /// The candidate must have the given letter at the given position — derived from a Correct Clue.

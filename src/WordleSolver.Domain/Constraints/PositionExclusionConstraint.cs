@@ -1,4 +1,4 @@
-namespace WordleSolver.Domain;
+namespace WordleSolver.Domain.Constraints;
 
 /// <summary>
 /// The candidate must not have the given letter at the given position, though the letter is known

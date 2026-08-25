@@ -1,3 +1,5 @@
+using WordleSolver.Domain.Constraints;
+
 namespace WordleSolver.Domain.Tests;
 
 public class PatternTests
