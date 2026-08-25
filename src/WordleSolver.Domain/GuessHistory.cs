@@ -14,4 +14,6 @@ public sealed class GuessHistory
         ArgumentNullException.ThrowIfNull(row);
         _rows.Add(row);
     }
+
+    public void RemoveAt(int index) => _rows.RemoveAt(index);
 }

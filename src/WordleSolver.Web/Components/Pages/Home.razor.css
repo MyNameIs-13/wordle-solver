@@ -1,0 +1,64 @@
+.solver-page {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    max-width: 30rem;
+    margin: 0 auto;
+}
+
+.solver-page__results {
+    max-height: 50vh;
+    overflow-y: auto;
+    border-top: 1px solid #eee;
+    padding-top: 1.5rem;
+}
+
+.tabs {
+    display: flex;
+    gap: 0.3rem;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 0.6rem;
+}
+
+.tab {
+    border: none;
+    background: none;
+    padding: 0.4rem 0.8rem;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+}
+
+.tab--active {
+    border-bottom-color: #1b6ec2;
+    font-weight: 600;
+}
+
+.count-badge {
+    display: inline-block;
+    background: #eee;
+    border-radius: 999px;
+    padding: 0.1rem 0.6rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.candidate-list, .pattern-list {
+    list-style: none;
+    padding: 0;
+    margin: 0.5rem 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem 0.8rem;
+}
+
+.pattern-list code {
+    /* Bootstrap defaults <code> to a pink/red color; this isn't an error state. */
+    color: inherit;
+    font-weight: 600;
+}
+
+.muted {
+    color: #767676;
+    font-size: 0.9rem;
+}

@@ -1,0 +1,181 @@
+@namespace WordleSolver.Web.Components
+@using Microsoft.AspNetCore.Components.Web
+@using WordleSolver.Domain
+
+<div class="guess-board">
+    <p class="visually-hidden">
+        The highlighted tile is the active position. Type a letter A through Z to fill it; the active
+        position does not move on its own. Use the left and right arrow keys to move it, or press
+        Backspace to clear the active tile (and step back if it was already empty). Press Space to
+        cycle the active tile's clue between absent, present, and correct. Click any tile to make it
+        active; if it already has a letter, clicking also cycles its clue.
+    </p>
+
+    @foreach (var (row, rowIndex) in History.Rows.Select((r, i) => (r, i)))
+    {
+        <div class="tile-row tile-row--locked" role="group" aria-label="@($"Guess {rowIndex + 1}: {row.Guess.Word}, submitted")">
+            @foreach (var tile in row.Tiles)
+            {
+                <span class="tile tile--@ClueClass(tile.Clue) tile--locked">@tile.Letter</span>
+            }
+            <button type="button"
+                    class="tile-row__delete"
+                    aria-label="@($"Delete guess {rowIndex + 1}: {row.Guess.Word}")"
+                    @onclick="() => RemoveRow(rowIndex)">
+                &times;
+            </button>
+        </div>
+    }
+
+    <div class="tile-row tile-row--active"
+         tabindex="0"
+         role="group"
+         aria-label="@($"Guess {History.Rows.Count + 1}: type letters; the highlighted tile is active")"
+         @ref="_activeRowRef"
+         @onkeydown="HandleRowKeyDown">
+        @for (var position = 0; position < 5; position++)
+        {
+            var pos = position;
+            var letter = _activeLetters[pos];
+            <button type="button"
+                    tabindex="-1"
+                    class="tile tile--@ClueClass(_activeClues[pos]) @(pos == _caret ? "tile--caret" : "")"
+                    aria-label="@BuildTileAriaLabel(pos, letter)"
+                    @onmousedown:preventDefault="true"
+                    @onclick="() => SelectTile(pos)">
+                @letter
+            </button>
+        }
+    </div>
+
+    <button type="button"
+            class="btn btn-primary add-row-btn"
+            disabled="@(!_activeLetters.All(l => l is not null))"
+            @onclick="SubmitRow">
+        + Add guess row
+    </button>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public GuessHistory History { get; set; } = null!;
+
+    [Parameter]
+    public EventCallback OnHistoryChanged { get; set; }
+
+    private readonly char?[] _activeLetters = new char?[5];
+    private readonly Clue[] _activeClues = CreateEmptyClues();
+    private int _caret;
+    private ElementReference _activeRowRef;
+    private bool _shouldFocusActiveRow = true;
+
+    private static string ClueClass(Clue clue) => clue.ToString().ToLowerInvariant();
+
+    // Clue.Correct is member 0, so a bare `new Clue[5]` (or Array.Clear) defaults every
+    // tile to green — explicitly fill with Absent instead.
+    private static Clue[] CreateEmptyClues()
+    {
+        var clues = new Clue[5];
+        Array.Fill(clues, Clue.Absent);
+        return clues;
+    }
+
+    private string BuildTileAriaLabel(int position, char? letter)
+    {
+        var current = position == _caret ? " (active)" : "";
+        return letter is null
+            ? $"Position {position + 1}, empty{current}"
+            : $"Position {position + 1}, letter {letter}, clue {_activeClues[position]}{current}";
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_shouldFocusActiveRow)
+        {
+            _shouldFocusActiveRow = false;
+            await _activeRowRef.FocusAsync();
+        }
+    }
+
+    private void HandleRowKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key.Length == 1 && char.IsAsciiLetter(e.Key[0]))
+        {
+            _activeLetters[_caret] = char.ToUpperInvariant(e.Key[0]);
+            _activeClues[_caret] = Clue.Absent;
+        }
+        else if (e.Key == "Backspace")
+        {
+            if (_activeLetters[_caret] is not null)
+            {
+                _activeLetters[_caret] = null;
+                _activeClues[_caret] = Clue.Absent;
+            }
+            else if (_caret > 0)
+            {
+                _caret--;
+                _activeLetters[_caret] = null;
+                _activeClues[_caret] = Clue.Absent;
+            }
+        }
+        else if (e.Key is " " or "Spacebar")
+        {
+            CycleClue(_caret);
+        }
+        else if (e.Code == "ArrowLeft" && _caret > 0)
+        {
+            // Checked via Code, not Key: with NumLock off, Numpad4/6 report Key "ArrowLeft"/"ArrowRight"
+            // too, which would otherwise make typing a number silently move the caret instead.
+            _caret--;
+        }
+        else if (e.Code == "ArrowRight" && _caret < _activeLetters.Length - 1)
+        {
+            _caret++;
+        }
+    }
+
+    private void SelectTile(int position)
+    {
+        _caret = position;
+        CycleClue(position);
+    }
+
+    private void CycleClue(int position)
+    {
+        if (_activeLetters[position] is null)
+            return;
+
+        _activeClues[position] = _activeClues[position] switch
+        {
+            Clue.Absent => Clue.Present,
+            Clue.Present => Clue.Correct,
+            Clue.Correct => Clue.Absent,
+            _ => Clue.Absent
+        };
+    }
+
+    private async Task RemoveRow(int index)
+    {
+        History.RemoveAt(index);
+        _shouldFocusActiveRow = true;
+
+        if (OnHistoryChanged.HasDelegate)
+            await OnHistoryChanged.InvokeAsync();
+    }
+
+    private async Task SubmitRow()
+    {
+        var word = new string(_activeLetters.Select(l => l!.Value).ToArray());
+        var guess = Guess.Create(word);
+        var row = GuessRow.Create(guess, _activeClues.ToList());
+        History.Add(row);
+
+        Array.Clear(_activeLetters);
+        Array.Fill(_activeClues, Clue.Absent);
+        _caret = 0;
+        _shouldFocusActiveRow = true;
+
+        if (OnHistoryChanged.HasDelegate)
+            await OnHistoryChanged.InvokeAsync();
+    }
+}

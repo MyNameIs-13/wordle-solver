@@ -1,7 +1,78 @@
-﻿@page "/"
+@page "/"
+@using WordleSolver.Application
+@using WordleSolver.Domain
+@using WordleSolver.Web.Components
+@inject WordleSolverService Solver
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Wordle Solver</PageTitle>
 
-<h1>Hello, world!</h1>
+<div class="solver-page">
+    <section class="solver-page__board">
+        <h1>Guesses</h1>
+        <GuessBoard History="_history" OnHistoryChanged="Recompute" />
+    </section>
 
-Welcome to your new app.
+    <section class="solver-page__results">
+        <div class="tabs" role="tablist">
+            <button type="button" role="tab" aria-selected="@(_activeTab == "candidates")"
+                    class="tab @(_activeTab == "candidates" ? "tab--active" : "")"
+                    @onclick='() => _activeTab = "candidates"'>
+                Candidates <span class="count-badge">@_candidates.Count</span>
+            </button>
+            <button type="button" role="tab" aria-selected="@(_activeTab == "pattern")"
+                    class="tab @(_activeTab == "pattern" ? "tab--active" : "")"
+                    @onclick="SelectPatternTab">
+                Show Pattern
+            </button>
+        </div>
+
+        @if (_activeTab == "candidates")
+        {
+            <ul class="candidate-list">
+                @foreach (var candidate in _candidates)
+                {
+                    <li>@candidate.Word</li>
+                }
+            </ul>
+        }
+        else if (_patterns is null)
+        {
+            <p class="muted">Computing&hellip;</p>
+        }
+        else if (_patterns.Count == 0)
+        {
+            <p class="muted">No pattern satisfies the current constraints.</p>
+        }
+        else
+        {
+            <ul class="pattern-list">
+                @foreach (var pattern in _patterns)
+                {
+                    <li><code>@pattern.ToString()</code></li>
+                }
+            </ul>
+        }
+    </section>
+</div>
+
+@code {
+    private readonly GuessHistory _history = new();
+    private IReadOnlyList<CandidateWord> _candidates = [];
+    private IReadOnlyList<Pattern>? _patterns;
+    private string _activeTab = "candidates";
+
+    protected override void OnInitialized() => Recompute();
+
+    private void Recompute()
+    {
+        _candidates = Solver.FindCandidates(_history);
+        _patterns = null;
+    }
+
+    private Task SelectPatternTab()
+    {
+        _activeTab = "pattern";
+        _patterns ??= Solver.GeneratePatterns(_history);
+        return Task.CompletedTask;
+    }
+}

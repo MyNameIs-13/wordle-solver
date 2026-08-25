@@ -1,0 +1,80 @@
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+}
+
+.tile-row {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-bottom: 0.4rem;
+}
+
+.tile-row__delete {
+    border: none;
+    background: none;
+    color: #b0b0b0;
+    font-size: 1.3rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0 0.3rem;
+}
+
+.tile-row__delete:hover {
+    color: #e03131;
+}
+
+.tile {
+    width: 3rem;
+    height: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    border: 2px solid #d3d6da;
+    border-radius: 4px;
+    background: #fff;
+    color: #1a1a1a;
+    cursor: pointer;
+}
+
+.tile--locked {
+    cursor: default;
+}
+
+.tile--caret {
+    box-shadow: 0 0 0 3px #258cfb;
+}
+
+.tile--absent {
+    background: #787c7e;
+    border-color: #787c7e;
+    color: #fff;
+}
+
+.tile--present {
+    background: #c9b458;
+    border-color: #c9b458;
+    color: #fff;
+}
+
+.tile--correct {
+    background: #6aaa64;
+    border-color: #6aaa64;
+    color: #fff;
+}
+
+.tile-row--active[tabindex]:focus-visible {
+    outline: 3px solid #258cfb;
+    outline-offset: 4px;
+}
+
+.add-row-btn {
+    margin-top: 0.6rem;
+}
