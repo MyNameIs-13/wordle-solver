@@ -1,3 +1,4 @@
+using WordleSolver.Application;
 using WordleSolver.Domain;
 using WordleSolver.Web.Components;
 
@@ -8,6 +9,7 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddSingleton(_ => WordList.LoadEmbedded());
+builder.Services.AddSingleton<WordleSolverService>();
 
 var app = builder.Build();
 

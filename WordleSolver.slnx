@@ -5,6 +5,7 @@
     <Project Path="src/WordleSolver.Web/WordleSolver.Web.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/WordleSolver.Application.Tests/WordleSolver.Application.Tests.csproj" />
     <Project Path="tests/WordleSolver.Domain.Tests/WordleSolver.Domain.Tests.csproj" />
   </Folder>
 </Solution>
