@@ -2,12 +2,16 @@
 @using Microsoft.AspNetCore.Components.Web
 @using WordleSolver.Domain
 
-<div class="guess-board">
+<div class="guess-board"
+     onmousedown="event.preventDefault(); this.querySelector('.tile-row--active')?.focus()"
+     onkeydown="if (event.key === 'Tab') event.preventDefault()">
     <p class="visually-hidden">
         The highlighted tile is the active position. Type a letter A through Z to fill it; the active
         position does not move on its own. Use the left and right arrow keys to move it, or press
         Backspace to clear the active tile (and step back if it was already empty). Press Space to
-        cycle the active tile's clue between absent, present, and correct. Click any tile to make it
+        cycle the active tile's clue between absent, present, and correct. Press Tab to move right,
+        or Shift+Tab to move left.
+        Click any tile to make it
         active; if it already has a letter, clicking also cycles its clue.
     </p>
 
@@ -99,6 +103,8 @@
 
     private void HandleRowKeyDown(KeyboardEventArgs e)
     {
+        _shouldFocusActiveRow = true;
+
         if (e.Key.Length == 1 && char.IsAsciiLetter(e.Key[0]))
         {
             _activeLetters[_caret] = char.ToUpperInvariant(e.Key[0]);
@@ -128,6 +134,14 @@
             // too, which would otherwise make typing a number silently move the caret instead.
             _caret--;
         }
+        else if (e.Key == "Tab" && e.ShiftKey && _caret > 0)
+        {
+            _caret--;
+        }
+        else if (e.Key == "Tab" && _caret < _activeLetters.Length - 1)
+        {
+            _caret++;
+        }
         else if (e.Code == "ArrowRight" && _caret < _activeLetters.Length - 1)
         {
             _caret++;
@@ -137,6 +151,7 @@
     private void SelectTile(int position)
     {
         _caret = position;
+        _shouldFocusActiveRow = true;
         CycleClue(position);
     }
 
