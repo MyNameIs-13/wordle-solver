@@ -70,7 +70,13 @@
     color: #fff;
 }
 
-.tile-row--active[tabindex]:focus-visible {
+.tile-row__input {
+    /* Real focus target so mobile browsers summon the on-screen keyboard; visually-hidden
+       keeps it invisible while staying focusable (unlike display:none/visibility:hidden). */
+    font-size: 16px; /* prevents iOS Safari from zooming the page on focus */
+}
+
+.tile-row--active:has(.tile-row__input:focus-visible) {
     outline: 3px solid #258cfb;
     outline-offset: 4px;
 }

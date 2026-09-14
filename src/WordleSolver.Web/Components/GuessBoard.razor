@@ -3,7 +3,7 @@
 @using WordleSolver.Domain
 
 <div class="guess-board"
-     onmousedown="event.preventDefault(); this.querySelector('.tile-row--active')?.focus()"
+     onmousedown="event.preventDefault(); this.querySelector('.tile-row__input')?.focus()"
      onkeydown="if (event.key === 'Tab') event.preventDefault()">
     <p class="visually-hidden">
         The highlighted tile is the active position. Type a letter A through Z to fill it; the active
@@ -31,12 +31,17 @@
         </div>
     }
 
-    <div class="tile-row tile-row--active"
-         tabindex="0"
-         role="group"
-         aria-label="@($"Guess {History.Rows.Count + 1}: type letters; the highlighted tile is active")"
-         @ref="_activeRowRef"
-         @onkeydown="HandleRowKeyDown">
+    <div class="tile-row tile-row--active" role="group">
+        <input type="text"
+               class="tile-row__input visually-hidden"
+               inputmode="text"
+               autocomplete="off"
+               autocorrect="off"
+               autocapitalize="characters"
+               spellcheck="false"
+               aria-label="@($"Guess {History.Rows.Count + 1}: type letters; the highlighted tile is active")"
+               @ref="_activeRowRef"
+               @onkeydown="HandleRowKeyDown" />
         @for (var position = 0; position < 5; position++)
         {
             var pos = position;
