@@ -41,7 +41,9 @@
                spellcheck="false"
                aria-label="@($"Guess {History.Rows.Count + 1}: type letters; the highlighted tile is active")"
                @ref="_activeRowRef"
-               @onkeydown="HandleRowKeyDown" />
+               @onkeydown="HandleRowKeyDown"
+               @onkeydown:preventDefault="true"
+               @oninput="HandleRowInput" />
         @for (var position = 0; position < 5; position++)
         {
             var pos = position;
@@ -77,6 +79,7 @@
     private int _caret;
     private ElementReference _activeRowRef;
     private bool _shouldFocusActiveRow = true;
+    private string _inputSnapshot = string.Empty;
 
     private static string ClueClass(Clue clue) => clue.ToString().ToLowerInvariant();
 
@@ -112,22 +115,11 @@
 
         if (e.Key.Length == 1 && char.IsAsciiLetter(e.Key[0]))
         {
-            _activeLetters[_caret] = char.ToUpperInvariant(e.Key[0]);
-            _activeClues[_caret] = Clue.Absent;
+            SetLetterAtCaret(e.Key[0]);
         }
         else if (e.Key == "Backspace")
         {
-            if (_activeLetters[_caret] is not null)
-            {
-                _activeLetters[_caret] = null;
-                _activeClues[_caret] = Clue.Absent;
-            }
-            else if (_caret > 0)
-            {
-                _caret--;
-                _activeLetters[_caret] = null;
-                _activeClues[_caret] = Clue.Absent;
-            }
+            Backspace();
         }
         else if (e.Key is " " or "Spacebar")
         {
@@ -150,6 +142,56 @@
         else if (e.Code == "ArrowRight" && _caret < _activeLetters.Length - 1)
         {
             _caret++;
+        }
+    }
+
+    // Soft-keyboard IMEs (notably Android Gboard, with suggestions showing) report keydown
+    // with key "Unidentified" for letters and sometimes Backspace, so no branch above
+    // matches and @onkeydown:preventDefault can't stop the browser's native edit either --
+    // the character still lands in the hidden input. This handler recovers it from the
+    // resulting `input` event by diffing against the last known value.
+    private void HandleRowInput(ChangeEventArgs e)
+    {
+        var newValue = e.Value?.ToString() ?? string.Empty;
+        var oldValue = _inputSnapshot;
+        _inputSnapshot = newValue;
+        _shouldFocusActiveRow = true;
+
+        if (newValue.Length > oldValue.Length)
+        {
+            foreach (var ch in newValue[oldValue.Length..])
+            {
+                if (char.IsAsciiLetter(ch))
+                    SetLetterAtCaret(ch);
+                else if (ch == ' ')
+                    CycleClue(_caret);
+            }
+        }
+        else if (newValue.Length < oldValue.Length)
+        {
+            for (var removed = oldValue.Length - newValue.Length; removed > 0; removed--)
+                Backspace();
+        }
+    }
+
+    private void SetLetterAtCaret(char letter)
+    {
+        _activeLetters[_caret] = char.ToUpperInvariant(letter);
+        _activeClues[_caret] = Clue.Absent;
+    }
+
+    private void Backspace()
+    {
+        if (_activeLetters[_caret] is not null)
+        {
+            _activeLetters[_caret] = null;
+            _activeClues[_caret] = Clue.Absent;
+        }
+        else if (_caret > 0)
+        {
+            _caret--;
+            _activeLetters[_caret] = null;
+            _activeClues[_caret] = Clue.Absent;
         }
     }
 
